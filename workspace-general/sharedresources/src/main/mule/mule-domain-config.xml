@@ -39,7 +39,6 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 			<jms:factory-configuration brokerUrl="tcp://localhost:61616" />
 		</jms:active-mq-connection>
 	</jms:config>
-	<global-property doc:name="Global Property" doc:id="58a80ae1-fee4-4e8e-8e71-6b9f3567d5b5" name="env" value="sit" />
 	<db:config name="MySQLConfig" doc:name="Database Config" doc:id="7b21117a-becf-42bb-9278-49eafc5eed7a" >
 		<db:my-sql-connection host="${database.mysql.host}" port="${database.mysql.port}" user="${database.mysql.user}" password="${database.mysql.pass}" database="${database.mysql.dbname}" />
 	</db:config>

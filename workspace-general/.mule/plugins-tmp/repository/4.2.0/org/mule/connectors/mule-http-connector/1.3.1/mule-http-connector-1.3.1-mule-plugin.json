@@ -6032,6 +6032,28 @@
       {
         "format": "java",
         "annotations": {
+          "extensibleType": {},
+          "classInformation": {
+            "implementedInterfaces": [],
+            "parent": "",
+            "classname": "org.mule.runtime.api.store.ObjectStore",
+            "hasDefaultConstructor": false,
+            "isInstantiable": false,
+            "isFinal": false,
+            "genericTypes": [],
+            "isInterface": true,
+            "isAbstract": true,
+            "isMap": false
+          },
+          "typeId": "org.mule.runtime.api.store.ObjectStore",
+          "typeAlias": {"value": "ObjectStore"}
+        },
+        "type": "Object",
+        "fields": []
+      },
+      {
+        "format": "java",
+        "annotations": {
           "typeDsl": {
             "allowTopLevelDefinition": true,
             "allowInlineDefinition": true
@@ -6514,28 +6536,6 @@
             "key": {"name": "reuseAddress"}
           }
         ]
-      },
-      {
-        "format": "java",
-        "annotations": {
-          "extensibleType": {},
-          "classInformation": {
-            "implementedInterfaces": [],
-            "parent": "",
-            "classname": "org.mule.runtime.api.store.ObjectStore",
-            "hasDefaultConstructor": false,
-            "isInstantiable": false,
-            "isFinal": false,
-            "genericTypes": [],
-            "isInterface": true,
-            "isAbstract": true,
-            "isMap": false
-          },
-          "typeId": "org.mule.runtime.api.store.ObjectStore",
-          "typeAlias": {"value": "ObjectStore"}
-        },
-        "type": "Object",
-        "fields": []
       }
     ],
     "xmlDsl": {
