@@ -1,0 +1,13 @@
+{
+	"header": {
+		"correlationID": "GUID",
+		"timestamp": "sometimestamp",
+		"caller": "external",
+		"flowName": "dtl"
+	},
+	"body": {
+		"timestamp": "currentTimestamp",
+		"ErrorCode": "SOMECODE",
+		"ErrorDescription": "Some Description Message"
+	}
+}

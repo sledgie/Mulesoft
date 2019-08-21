@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="EmployeeSingle" format="json">
+      <types:shape format="weave" example="examples/empjson-1.json"><![CDATA[%dw 2.0
+
+type EmployeeSingle = {|
+  EmployeeID: String, 
+  Salutation: String, 
+  FirstName: String, 
+  LastName: String, 
+  Suffix: String, 
+  Gender: String, 
+  Position: String, 
+  Specialty: String, 
+  Email: String, 
+  PhoneNumber: String, 
+  OnClient: Boolean
+|} {"example": "{\"EmployeeID\":\"EMP001\",\"Salutation\":\"Mr.\",\"FirstName\":\"Pathik\",\"LastName\":\"Gandhi\",\"Suffix\":\"\",\"Gender\":\"M\",\"Position\":\"System Analyst\",\"Specialty\":\"MFT\",\"Email\":\"pathik.gandhi@itechtions.com\",\"PhoneNumber\":\"1234567890\",\"OnClient\":false}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="errorPayload" format="json">
+      <types:shape format="weave" example="examples/error.json"><![CDATA[%dw 2.0
+
+type errorPayload = {|
+  header: {|
+    correlationID: String, 
+    timestamp: String, 
+    caller: String, 
+    flowName: String
+  |}, 
+  body: {|
+    timestamp: String, 
+    ErrorCode: String, 
+    ErrorDescription: String
+  |}
+|} {"example": "{\"header\":{\"correlationID\":\"GUID\",\"timestamp\":\"sometimestamp\",\"caller\":\"external\",\"flowName\":\"dtl\"},\"body\":{\"timestamp\":\"currentTimestamp\",\"ErrorCode\":\"SOMECODE\",\"ErrorDescription\":\"Some Description Message\"}}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#ca969d12-3412-42c1-b004-ee846af19a41">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="EmployeeSingle"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="EmployeeSingle"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#d22d6259-bd4f-4c88-b206-de78ee15f3a1">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="errorPayload"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

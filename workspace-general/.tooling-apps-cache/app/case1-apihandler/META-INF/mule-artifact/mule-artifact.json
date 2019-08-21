@@ -1,0 +1,31 @@
+{
+  "configs": [
+    "case-raml.xml",
+    "case1-apihandler.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:case1-apihandler:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.2.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "api/case-raml.raml",
+        "application-types.xml",
+        "case-raml.xml",
+        "case1-apihandler.xml",
+        "examples/empjson-1.json",
+        "examples/empjson.json",
+        "examples/error.json",
+        "log4j2.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

@@ -1,0 +1,4 @@
+jms:
+  queues:
+    env: "DEV"
+    destination: "Q.ITECHTIONS.ERROR"

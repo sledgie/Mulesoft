@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="a4775c01-3eac-42e7-ba30-5c34a816594d" file="test-properties.yaml" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="4dd6e46d-8f57-42ae-a775-da087e865b22" basePath="/" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="testing-dataweave-propertyfile-data-callFlow" doc:id="1c67cf5c-ebce-4f0d-862e-4301527c98f0" >
+		<http:listener doc:name="Listener" doc:id="ceb21a60-3480-44dd-b48c-477a2786f5a3" config-ref="HTTP_Listener_config" path="/test"/>
+		<ee:transform doc:name="Transform Message" doc:id="e8cc943d-a6cb-4621-8be9-6a67fcace184" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	data: p('countrycode.IND')
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[%dw 2.0
+output application/json
+---
+{
+	data: p('countrycode.CAN')
+}]" doc:name="Set Payload" doc:id="d30dfad9-2bcd-4a6f-8225-b46bd9e56c91" />
+	</flow>
+</mule>

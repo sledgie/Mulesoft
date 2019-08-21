@@ -1,0 +1,28 @@
+{
+  "configs": [
+    "case1-csvtojsontodb-process.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:case1-csvtojsontodb-process:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.2.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "api/case-raml.raml",
+        "application-types.xml",
+        "case1-csvtojsontodb-process.xml",
+        "examples/empjson.json",
+        "examples/Employees.csv",
+        "log4j2.xml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

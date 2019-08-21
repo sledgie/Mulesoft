@@ -1,0 +1,153 @@
+#%RAML 1.0
+version: v1
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/d0b0110b-082b-408d-9041-f5fbb98c75c5/ # 
+title: Case-RAML
+description: The API will be used for the Case Study
+
+/employees:
+  get:
+    responses:
+      200:
+        description: Returns all the employees
+        body:
+          application/json:
+            example: |
+              {
+                "employees": [
+                  {
+                    "EmployeeID": "EMP001",
+                    "Salutation": "Mr.",
+                    "FirstName": "Abner",
+                    "LastName": "Corpuz",
+                    "Suffix": "",
+                    "Gender": "M",
+                    "Position": "System Analyst",
+                    "Specialty": "BW",
+                    "Email": "abner.corpuz@itechtions.com",
+                    "PhoneNumber": "6478931031",
+                    "OnClient": "false"
+                  },
+                  {
+                    "EmployeeID": "EMP002",
+                    "Salutation": "Mr.",
+                    "FirstName": "Pathik",
+                    "LastName": "Gandhi",
+                    "Suffix": "",
+                    "Gender": "M",
+                    "Position": "System Analyst",
+                    "Specialty": "MFT",
+                    "Email": "pathik.gandhi@itechtions.com",
+                    "PhoneNumber": "4567891231",
+                    "OnClient": "false"
+                  }
+                ]
+              }
+      500:
+        description: Internal Server Error
+        body:
+          application/json:
+            example: |
+              {
+                "Error Code": "500",
+                "Error Description": "Internal Server Error"
+              }  
+  put:
+    description: Update an employee
+    body:
+      application/json:
+        example: |
+          [{
+            "EmployeeID": "EMP001",
+            "Salutation": "Mr.",
+            "FirstName": "Abner",
+            "LastName": "Corpuz",
+            "Suffix": "",
+            "Gender": "M",
+            "Position": "System Analyst",
+            "Specialty": "BW",
+            "Email": "abner.corpuz@itechtions.com",
+            "PhoneNumber": "6478931031",
+            "OnClient": "false"
+          }]
+    responses:
+      204:
+        description: "Data has been updated"
+        body:
+          application/json:
+            example: |
+                {
+                  "Message": "Data has been updated"
+                }
+      400:
+        description: "Bad Request"
+        body:
+          application/json:
+            example: |
+                {
+                  "ErrorCode": "Error 400",
+                  "ErrorDescription": "Bad Request"
+                }
+  post:
+    description: Insert a new employee in the database
+    body:
+      application/json:
+        example: |
+          {            
+            "EmployeeID": "EMP001",
+            "Salutation": "Mr.",
+            "FirstName": "Abner",
+            "LastName": "Corpuz",
+            "Suffix": "",
+            "Gender": "M",
+            "Position": "System Analyst",
+            "Specialty": "BW",
+            "Email": "abner.corpuz@itechtions.com",
+            "PhoneNumber": "6478931031",
+            "OnClient": "false"          
+          }
+    responses:
+      201:
+        body:
+          application/json:
+            example: |
+              {
+                "Message": "Data has been inserted"
+              }
+      400:
+        body:
+          application/json:
+            example: |
+              {
+                "ErrorCode": "400",
+                "ErrorDescription": "Bad Request"
+              }
+/employees/{employeeid}:
+  get:
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "EmployeeID": "EMP001",
+                "Salutation": "Mr.",
+                "FirstName": "Abner",
+                "LastName": "Corpuz",
+                "Suffix": "",
+                "Gender": "M",
+                "Position": "System Analyst",
+                "Specialty": "BW",
+                "Email": "abner.corpuz@itechtions.com",
+                "PhoneNumber": "6478931031",
+                "OnClient": "false"          
+              }
+  delete:
+    description: "Remove a data from the database by {employeeid}"
+    responses:
+      200:        
+        body:
+          application/json:
+            example: |
+              {
+                "Message": "Data has been removed from the database"
+              }

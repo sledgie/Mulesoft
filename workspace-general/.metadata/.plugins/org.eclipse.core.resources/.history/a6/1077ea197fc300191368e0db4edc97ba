@@ -1,0 +1,19 @@
+database:
+  sqlserver:
+    host: "localhost"
+    port: "1433"
+    user: "bwadmin"
+    pass: "bwadmin"
+    dbname: "employees"
+fileconfig:
+  input-directory: "C:/temp/case1/input/"
+  json-directory: "C:/temp/case1/json/"
+  xml-directory: "C:/temp/case1/xml/"
+  processed-directory: "C:/temp/case1/processed/"
+http:
+  host: "0.0.0.0"
+  port: "8084"
+salesforce:
+  username: "abner.corpuz@itechtions.com"
+  token: "c8OeCZaWfcLkvDa2JHRcXS8j"
+  urlconfig: "https://login.salesforce.com/services/Soap/u/46.0"

@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="errorPayload" format="json">
+      <types:shape format="weave" example="examples/error-1.json"><![CDATA[%dw 2.0
+
+type errorPayload = {|
+  header: {|
+    correlationID: String, 
+    timestamp: String, 
+    caller: String, 
+    flowName: String
+  |}, 
+  body: {|
+    timestamp: String, 
+    ErrorCode: String, 
+    ErrorDescription: String
+  |}
+|} {"example": "{\"header\":{\"correlationID\":\"GUID\",\"timestamp\":\"sometimestamp\",\"caller\":\"external\",\"flowName\":\"dtl\"},\"body\":{\"timestamp\":\"currentTimestamp\",\"ErrorCode\":\"SOMECODE\",\"ErrorDescription\":\"Some Description Message\"}}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#c677b01b-f217-4fce-8ec0-acd85cabd15f">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="errorPayload"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>

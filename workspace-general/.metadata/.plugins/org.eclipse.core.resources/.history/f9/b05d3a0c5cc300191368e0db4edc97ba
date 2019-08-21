@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+    <http:listener-config name="case-raml-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="case-raml-config" raml="case-raml.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" >
+		<apikit:flow-mappings >
+			<apikit:flow-mapping resource="/employees" action="get" flow-ref="get:\employees:case-raml-config" />
+			<apikit:flow-mapping resource="/employees" action="put" content-type="application/json" flow-ref="put:\employees:case-raml-config" />
+			<apikit:flow-mapping resource="/employees" action="post" content-type="application/json" flow-ref="post:\employees:case-raml-config" />
+			<apikit:flow-mapping resource="/employees/{employeeid}" action="get" flow-ref="get:\employees\(employeeid):case-raml-config" />
+		</apikit:flow-mappings>
+	</apikit:config>
+    <flow name="case-raml-main">
+        <http:listener config-ref="HTTP_Listener_config" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="case-raml-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="case-raml-console">
+        <http:listener config-ref="HTTP_Listener_config" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="case-raml-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\employees:case-raml-config">
+		<foreach doc:name="For Each" doc:id="403ef6f9-670a-46fb-89ec-1beacebaeff5" collection="payload">
+			<set-variable value="#[payload]" doc:name="Save Current Payload" doc:id="664234ad-5373-4213-aa7c-34de9970dacc" variableName="saveCurrPayload"/>
+			<db:select doc:name="Check exist" doc:id="dc0bc841-30e7-4df8-bca3-49c7b3b89826" config-ref="SQLServer-config">
+				<db:sql >SELECT EmployeeID FROM employees WHERE EmployeeID = :EmployeeID</db:sql>
+				<db:input-parameters ><![CDATA[#[{
+	"EmployeeID": payload.EmployeeID
+}]]]></db:input-parameters>
+			</db:select>
+			<choice doc:name="Choice" doc:id="cd1cf8f7-7268-4dda-b7cc-9a2e4c55ee6d" >
+				<when expression="#[payload[0] != null]">
+					<ee:transform doc:name="Transform Message" doc:id="58bf1f44-a89e-4323-9129-51826963f014" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.saveCurrPayload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<db:update doc:name="Update Employees" doc:id="c511c3cc-6222-441a-b5d6-6013c48af8d6" config-ref="SQLServer-config">
+			<db:sql>UPDATE employees SET 
+Salutation = :Salutation,
+FirstName = :FirstName,
+LastName = :LastName,
+Suffix = :Suffix,
+Gender = :Gender,
+Position = :Position,
+Specialty = :Specialty,
+Email = :Email,
+PhoneNumber = :PhoneNumber,
+OnClient = :OnClient
+WHERE EmployeeID = :EmployeeID
+</db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"Salutation": payload.Salutation,
+	"FirstName": payload.FirstName,
+	"LastName": payload.LastName,
+	"Suffix": payload.Suffix,
+	"Gender": payload.Gender,
+	"Position": payload.Position,
+	"Specialty": payload.Specialty,
+	"Email": payload.Email,
+	"PhoneNumber": payload.PhoneNumber,
+	"OnClient": payload.OnClient,
+	"EmployeeID": payload.EmployeeID
+}]]]></db:input-parameters>
+		</db:update>
+				</when>
+				<otherwise >
+					<ee:transform doc:name="Transform Message" doc:id="a7c1d5ec-e258-4a53-859a-0620eb9845cd" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+vars.saveCurrPayload]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<flow-ref doc:name="Call Insert Flow" doc:id="eacf8bc7-2729-424f-b0ee-0bb1c5d03b3a" name="post:\employees:case-raml-config" />
+				</otherwise>
+			</choice>
+		</foreach>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="dc6d3ac0-291e-4326-ae40-d19a194a9eff">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Message: "Data has been updated"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\employees:case-raml-config">
+		<try doc:name="Try" doc:id="a68f94b2-19c5-42b5-b0d9-c01f23fe1495" >
+			<db:select doc:name="Select All Employees" doc:id="1a95dabb-59ca-4062-8b61-6821d5748c91" config-ref="SQLServer-config">
+			<db:sql>SELECT FirstName, Gender, Position FROM employees</db:sql>
+		</db:select>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="ed9afb9f-b2de-45ab-82be-2814eab1fd05" type="ANY">
+					<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	header:{
+		correlationID: payload.header.correlationID,
+		timestamp: payload.header.timestamp,
+		caller: "case-raml",
+		flowName: "case-raml"
+	},
+	body:{
+		timestamp: now,
+		ErrorCode: error.errorType,
+		ErrorDescription: error.detailedDescription
+	}
+}]' doc:name="Set Payload" doc:id="d22d6259-bd4f-4c88-b206-de78ee15f3a1" />
+					<jms:publish doc:name="Publish" doc:id="5d8b74f4-3558-4b04-9e26-62698dcc79a4" config-ref="JMS_Config" destination="DEV.Q.ITECHTIONS.ERROR"/>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="aed3136b-6d50-4118-8dca-bb5d81a219b3">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="delete:\employees\(employeeid):case-raml-config" doc:id="4ea8d04b-923d-4e5e-9fef-decc7b151f71" >
+		<db:select doc:name="Select" doc:id="ef33c2d4-c995-4a4e-8f31-027532782578" config-ref="SQLServer-config">
+			<db:sql >SELECT EmployeeID FROM employees WHERE EmployeeID = :EmployeeID</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"EmployeeID": attributes.uriParams.employeeid
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="77f1a1c0-2b6a-450d-bf67-d018790f272c" >
+			<when expression="#[payload[0] != null]">
+				<db:delete doc:name="Delete" doc:id="db4fe365-e204-4bef-9526-30fee0f93827" config-ref="SQLServer-config">
+					<db:sql >DELETE FROM employees WHERE EmployeeID = :EmployeeID</db:sql>
+					<db:input-parameters ><![CDATA[#[{
+	"EmployeeID": attributes.uriParams.employeeid
+}]]]></db:input-parameters>
+				</db:delete>
+			</when>
+			<otherwise >
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	"Message": "Unable to find record " ++ attributes.uriParams.employeeid
+}]' doc:name="Set Payload" doc:id="4cf012ed-b8ce-40c8-af55-c7f8f161acc1" />
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="get:\employees\(employeeid):case-raml-config">
+        <db:select doc:name="Select" doc:id="4adb1ee8-98ed-41d8-9744-10dc43e43379" config-ref="SQLServer-config" queryTimeout="30">
+			<db:sql >SELECT * FROM employees WHERE EmployeeID = :EmployeeID</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"EmployeeID": attributes.uriParams.employeeid
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="229ec099-38d6-4a39-a80e-92a414cffacd" >
+			<when expression="#[payload[0] != null]">
+				<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="ca969d12-3412-42c1-b004-ee846af19a41">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+			</when>
+			<when expression="#[payload[0] == null]">
+				<raise-error doc:name="Raise error" doc:id="ac3f383b-1914-42cf-a134-0282d54a1b85" type="DATA:NO_RECORD" description="There is no record found in the database." />
+			</when>
+		</choice>
+		<error-handler>
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="0f215d2a-7b6b-4ea3-9d28-af855d4820a5" type="ANY">
+				<set-payload value='#[%dw 2.0
+output application/json
+---
+{
+	"ErrorCode": error.errorType,
+	"Error": error.description	
+}]' doc:name="Set Payload" doc:id="d393cdf3-0274-4d18-9654-4fb4df5327a3" mimeType="application/json"/>
+			</on-error-continue>
+		</error-handler>
+    </flow>
+    <flow name="post:\employees:case-raml-config">
+		<db:insert doc:name="Insert New Data" doc:id="50a54f9e-9840-4894-a32f-c15822336929" config-ref="SQLServer-config">
+			<db:sql >INSERT INTO employees (EmployeeID, Salutation, FirstName, LastName, Suffix, Gender, Position, Specialty, Email, PhoneNumber, OnClient)
+VALUES (:EmployeeID, :Salutation, :FirstName, :LastName, :Suffix, :Gender, :Position, :Specialty, :Email, :PhoneNumber, :OnClient)</db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"EmployeeID": payload.EmployeeID, 
+	"Salutation": payload.Salutation, 
+	"FirstName": payload.FirstName, 
+	"LastName": payload.LastName, 
+	"Suffix": payload.Suffix, 
+	"Gender": payload.Gender, 
+	"Position": payload.Position, 
+	"Specialty": payload.Specialty, 
+	"Email": payload.Email, 
+	"PhoneNumber": payload.PhoneNumber, 
+	"OnClient": payload.OnClient
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="45fb1e08-cbf0-4484-a65e-f4c8e6aae64a">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  Message: "Data has been inserted"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+</mule>

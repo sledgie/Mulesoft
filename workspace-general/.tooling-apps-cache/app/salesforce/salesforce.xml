@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="28bbe504-2a30-423e-8182-eeeac2cfc8bc" file="config.yaml" />
+	<flow name="salesforce-contact-query-flow" doc:id="3fe449dc-d588-451e-89c6-6a242c969aa1" >
+		<http:listener doc:name="Listener" doc:id="f9cdc5e2-9d32-4f0d-9980-57a0927d9603" config-ref="HTTP_Listener_config" path="/contacts"/>
+		<salesforce:query doc:name="Query" doc:id="58e148d1-6a8d-4a05-983c-49e2855630a5" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query >SELECT AccountId, Name, Email, MobilePhone FROM Contact</salesforce:salesforce-query>
+		</salesforce:query>
+		<set-payload value="#[%dw 2.0
+output application/json
+---
+payload]" doc:name="Set Payload" doc:id="b8a0d63d-0d33-458e-b31a-ad6fe8fe3e4b" />
+	</flow>
+	<flow name="salesforce-accounts-query-flow" doc:id="3558be1b-a638-4988-8872-f71374460142" >
+		<http:listener doc:name="Listener" doc:id="0eb4fdfd-bad0-4c7f-b397-f0215701b7b7" config-ref="HTTP_Listener_config" path="/accounts"/>
+		<salesforce:query doc:name="Get Accounts" doc:id="2d807d90-f3b1-43fe-a91e-c7525500ffc1" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query >SELECT Name, AccountNumber, OwnerId, Site, AccountSource, Active__c, AnnualRevenue, BillingAddress, CleanStatus, CreatedById, 
+CustomerPriority__c, Description, NumberOfEmployees, Fax, Industry, NaicsCode, NaicsDesc, ParentId, Phone, Rating, ShippingAddress, Type, Website
+FROM Account
+WHERE Name = ':AccountName'</salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	AccountName : "iTechtions Inc"
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<set-payload value="#[%dw 2.0
+output application/json
+---
+payload]" doc:name="Set Payload" doc:id="d6167a8e-2c3d-4052-b10f-cb6d77bb0016" />
+	</flow>
+	<flow name="salesforce-jms" doc:id="ba49daa5-ba4e-45ea-ae4a-6d5eccc164d1" >
+		<http:listener doc:name="Listener" doc:id="f18526ad-ce81-458f-b48a-d6ebb771f834" config-ref="HTTP_Listener_config" path="/activemq" outputMimeType="text/plain"/>
+		<jms:publish-consume doc:name="Publish consume" doc:id="fe94ab8f-90a6-48bd-9ac5-1af86759a2ae" destination="Pathik" config-ref="JMS_Config">
+			<jms:message >
+				<jms:body ><![CDATA[#['Hello World']]]></jms:body>
+			</jms:message>
+		</jms:publish-consume>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="90332ec3-5970-46ce-9f32-20850bf17495" mimeType="text/plain"/>
+	</flow>
+	<flow name="jms-listener-flow" doc:id="aded3c87-1248-4593-936e-bde9f9921eb3" >
+		<jms:listener doc:name="Listener" doc:id="4272dcc8-2c85-4ea3-af18-fb129af67f38" destination="Pathik" ackMode="MANUAL" config-ref="JMS_Config">
+			<jms:consumer-type >
+				<jms:queue-consumer />
+			</jms:consumer-type>
+			<jms:response sendCorrelationId="AUTO" />
+		</jms:listener>
+		<set-payload value="#[%dw 2.0
+output application/json
+---
+{
+	&quot;data&quot;: p('codelist.GB')
+}]" doc:name="Set Payload" doc:id="b1a59080-c660-4456-827b-fb110e77f229" />
+		<ee:transform doc:name="Transform Message" doc:id="fe5a3eb4-55e8-43d8-8ae1-085b003cb57e" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"data": p('codelist.GB')
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<jms:ack doc:name="Ack" doc:id="42c7b868-a881-43aa-b970-1e36546a4402" ackId="#[attributes.ackId]"/>
+	</flow>
+</mule>

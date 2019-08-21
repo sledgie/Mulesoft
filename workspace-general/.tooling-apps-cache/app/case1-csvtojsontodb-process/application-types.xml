@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="CSVFile-Type" format="csv">
+      <types:shape format="weave" example="examples/Employees.csv"><![CDATA[%dw 2.0
+
+type CSVFile_Type = Array<{|  EmployeeID: String,   Salutation: String,   FirstName: String,   LastName: String,   Suffix: String,   Gender: String,   Position: String,   Specialty: String,   Email: String,   Phone: String,   OnClient: String|}>
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+        <types:property name="separator" value=","/>
+      </types:properties>
+    </types:type>
+    <types:type name="JSONFile-Type" format="json">
+      <types:shape format="weave" example="examples/empjson.json"><![CDATA[%dw 2.0
+
+type JSONFile_Type = Array<{|  Salutation: String,   FirstName: String,   LastName: String,   Suffix: String,   Gender: String,   Position: String,   Specialty: String,   Email: String,   PhoneNumber: String,   OnClient: Boolean|}> {"example": "[{\"Salutation\":\"Mr.\",\"FirstName\":\"Pathik\",\"LastName\":\"Gandhi\",\"Suffix\":\"\",\"Gender\":\"M\",\"Position\":\"System Analyst\",\"Specialty\":\"MFT\",\"Email\":\"pathik.gandhi@itechtions.com\",\"PhoneNumber\":\"1234567890\",\"OnClient\":false}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#94e951f5-7b46-405d-9597-257734f5ace4">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="CSVFile-Type"/>
+        </types:message>
+      </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="JSONFile-Type"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#e6bd8c8a-a867-4403-b0ef-caf9c7d3e562">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="CSVFile-Type"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#5c285a40-59b9-4f64-8482-090b30700e02"/>
+</types:mule>
